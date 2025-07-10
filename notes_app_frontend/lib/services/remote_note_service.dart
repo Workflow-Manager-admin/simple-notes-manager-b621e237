@@ -39,7 +39,7 @@ class RemoteNoteService {
       for (final note in localNotes) {
         await _client
             .from('notes')
-            .upsert(note.toMap(), onConflict: 'id')
+            .upsert(note.toMap(forDb: true), onConflict: 'id')
             .select();
       }
 
