@@ -60,7 +60,6 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.primary;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,

@@ -5,6 +5,7 @@ import 'package:notes_app_frontend/services/local_note_service.dart';
 import 'package:notes_app_frontend/services/remote_note_service.dart';
 import 'package:notes_app_frontend/models/note.dart';
 import 'package:notes_app_frontend/theme/app_theme.dart';
+import 'package:flutter/foundation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,13 +63,22 @@ class _NotesHomePageState extends State<NotesHomePage> {
   Future<void> _loadNotes() async {
     setState(() => _isLoading = true);
     _notes = await LocalNoteService.instance.getAllNotes();
+    if (kDebugMode) {
+      print('UI: _loadNotes got ${_notes.length} notes');
+    }
     setState(() => _isLoading = false);
   }
 
   Future<void> _syncNotesWithCloud() async {
     setState(() => _isSyncing = true);
+    if (kDebugMode) {
+      print('UI: _syncNotesWithCloud started.');
+    }
     await RemoteNoteService.instance.syncWithCloud();
     _notes = await LocalNoteService.instance.getAllNotes();
+    if (kDebugMode) {
+      print('UI: _syncNotesWithCloud finished, loaded ${_notes.length} notes from local');
+    }
     setState(() => _isSyncing = false);
   }
 

@@ -40,7 +40,7 @@ class Note {
     final day = date.day.toString().padLeft(2, '0');
     final hour = date.hour.toString().padLeft(2, '0');
     final min = date.minute.toString().padLeft(2, '0');
-    return '$month/$day ${hour}:${min}';
+    return '$month/$day $hour:$min';
   }
 
   /// Creates a Note from a map, supporting both camelCase (local)

@@ -3,16 +3,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:notes_app_frontend/main.dart';
 
 void main() {
-  testWidgets('App generation message displayed', (WidgetTester tester) async {
-    await tester.pumpWidget(const MyApp());
+  testWidgets('App main screen title', (WidgetTester tester) async {
+    await tester.pumpWidget(const NotesApp());
 
-    expect(find.text('notes_app_frontend App is being generated...'), findsOneWidget);
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.text('My Notes'), findsOneWidget);
   });
 
-  testWidgets('App bar has correct title', (WidgetTester tester) async {
-    await tester.pumpWidget(const MyApp());
-
-    expect(find.text('notes_app_frontend'), findsOneWidget);
+  // Additional basic widget test example (Home screen has FAB)
+  testWidgets('FloatingActionButton exists on Home screen', (WidgetTester tester) async {
+    await tester.pumpWidget(const NotesApp());
+    expect(find.byType(FloatingActionButton), findsOneWidget);
   });
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/note.dart';
+import 'package:flutter/foundation.dart';
 
 /// PUBLIC_INTERFACE
 /// LocalNoteService handles local storage of notes via SharedPreferences.
@@ -25,9 +26,16 @@ class LocalNoteService {
     for (final n in listJson) {
       try {
         notes.add(Note.fromMap(jsonDecode(n)));
-      } catch (_) {}
+      } catch (e) {
+        if (kDebugMode) {
+          print('LOCAL NOTE - Failed to parse note from JSON: $e; json=$n');
+        }
+      }
     }
     notes.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    if (kDebugMode) {
+      print('LOCAL NOTE: getAllNotes returns ${notes.length} notes: $notes');
+    }
     return notes;
   }
 
@@ -52,6 +60,9 @@ class LocalNoteService {
 
   /// Save whole list to local storage (private).
   Future<void> _saveNotesList(List<Note> notes) async {
+    if (kDebugMode) {
+      print('LOCAL NOTE: _saveNotesList saving ${notes.length} notes.');
+    }
     await _prefs.setStringList(
         _notesKey, notes.map((e) => jsonEncode(e.toMap())).toList());
   }
@@ -59,6 +70,9 @@ class LocalNoteService {
   // PUBLIC_INTERFACE
   /// Overwrites stored notes with provided notes list (used for full resyncs/cloud sync).
   Future<void> overwriteNotes(List<Note> notes) async {
+    if (kDebugMode) {
+      print('LOCAL NOTE: overwriteNotes called with ${notes.length} notes.');
+    }
     await _saveNotesList(notes);
   }
 

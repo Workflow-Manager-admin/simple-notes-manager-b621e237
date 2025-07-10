@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/note.dart';
 import 'local_note_service.dart';
+import 'package:flutter/foundation.dart';
 
 /// PUBLIC_INTERFACE
 /// Handles cloud sync to and from Supabase.
@@ -34,9 +35,15 @@ class RemoteNoteService {
     try {
       await init();
       final localNotes = await LocalNoteService.instance.getAllNotes();
+      if (kDebugMode) {
+        print('REMOTE SYNC: Local notes before push (count=${localNotes.length}): $localNotes');
+      }
 
       // Push local notes to Supabase (upsert)
       for (final note in localNotes) {
+        if (kDebugMode) {
+          print('REMOTE SYNC: Upserting local note id=${note.id}');
+        }
         await _client
             .from('notes')
             .upsert(note.toMap(forDb: true), onConflict: 'id')
@@ -46,14 +53,23 @@ class RemoteNoteService {
       // Pull notes from Supabase, resolve latest by updatedAt
       final dynamic response =
           await _client.from('notes').select();
+      if (kDebugMode) {
+        print('REMOTE SYNC: Raw Supabase fetch response: $response');
+      }
       // Ensure we get a List<Map>
       final List<Map<String, dynamic>> remoteList = response is List
           ? List<Map<String, dynamic>>.from(
               response.whereType<Map<String, dynamic>>())
           : <Map<String, dynamic>>[];
+      if (kDebugMode) {
+        print('REMOTE SYNC: Parsed remoteList = $remoteList');
+      }
       final remoteNotes = remoteList
           .map((item) => Note.fromMap(item))
           .toList();
+      if (kDebugMode) {
+        print('REMOTE SYNC: Fetched remoteNotes (parsed to model, count=${remoteNotes.length}): $remoteNotes');
+      }
 
       // Merge and select the latest between local and remote
       final Map<String, Note> noteMap = {};
@@ -63,9 +79,18 @@ class RemoteNoteService {
           noteMap[note.id] = note;
         }
       }
+      if (kDebugMode) {
+        print('REMOTE SYNC: Final merged noteMap.values = ${noteMap.values.length}');
+      }
       await LocalNoteService.instance
           .overwriteNotes(noteMap.values.toList());
+      if (kDebugMode) {
+        print('REMOTE SYNC: Wrote merged notes to local.');
+      }
     } catch (e) {
+      if (kDebugMode) {
+        print('REMOTE SYNC: Exception - $e');
+      }
       // Fail gracefully if offline
     }
   }
